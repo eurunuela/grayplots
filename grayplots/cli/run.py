@@ -50,7 +50,7 @@ def _get_parser():
                           help='FWHM value for 3dGrayplot (default = 0.0).',
                           default=0.0)
     optional.add_argument('-range',
-                          dest='range',
+                          dest='range_grayplot',
                           nargs=1,
                           metavar='RANGE',
                           type=int,
