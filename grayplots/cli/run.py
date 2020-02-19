@@ -14,13 +14,20 @@ def _get_parser():
                           type=str,
                           help=('Input data.'),
                           required=True)
-    optional.add_argument('-rank',
-                          dest='rank',
+    required.add_argument('-m',
+                          dest='mask',
+                          nargs='+',
+                          metavar='FILE',
+                          type=str,
+                          help=('Mask of input data.'),
+                          required=True)
+    optional.add_argument('-dir',
+                          dest='outdir',
                           nargs=1,
-                          metavar='RANK',
-                          type=int,
-                          help='Rank of the tensor (default = 6).',
-                          default=6)
+                          metavar='DIR',
+                          type=str,
+                          help='Output directory name (default = results).',
+                          default='results')
     optional.add_argument('-v', '--version', action='version',
                           version=('%(prog)s ' + __version__))
     parser._action_groups.append(optional)
@@ -29,5 +36,5 @@ def _get_parser():
 
 if __name__ == '__main__':
     raise RuntimeError('grayplots/cli/run.py should not be run directly;\n'
-                       'Please `pip install` whiterose and use the '
-                       '`whiterose` command')
+                       'Please `pip install` grayplots and use the '
+                       '`grayplots` command')

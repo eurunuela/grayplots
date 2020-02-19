@@ -1,10 +1,11 @@
-import numpy as np
 import os
+import numpy as np
 from grayplots.cli.run import _get_parser
 
 
-def grayplots():
-    print('hey')
+def grayplots(data, mask, dir):
+    
+    n_datasets = len(data)
 
 
 def _main(argv=None):
