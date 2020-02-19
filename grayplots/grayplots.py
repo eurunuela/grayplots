@@ -37,25 +37,37 @@ def grayplots(data, mask, mot, outdir, polort, fwhm, range_grayplot, percent, or
             time.sleep(0.5)
         print(f'Grayplot of {data[data_idx]} saved in {grayplot_output}')
 
-    # Calculates 
+    # Motion parameters-related calculations
     if mot is not None:
         for mot_idx in range(n_mot):
+            # Computes de-meaned motion parameters (to be used in regression)
+            demean_mopars_output = os.path.join(outdir, 'Motion_demean.1D')
             demean_mopars_command = (f'1d_tool.py -overwrite -infile {mot[mot_idx]} -set_nruns 1 '
-                                     f'-demean -write Motion_demean.1D')
+                                     f'-demean -write {demean_mopars_output}')
+            # Computes motion parameter derivatives (to be used in regression)
+            deriv_mopars_output = os.path.join(outdir, 'Motion_deriv.1D')
             deriv_mopars_command = (f'1d_tool.py -overwrite -infile {mot[mot_idx]} -set_nruns 1 '
-                                    f'-derivative -demean -write Motion_deriv.1D')
+                                    f'-derivative -demean -write {deriv_mopars_output}')
+            # Computes Framewise Displacement based on Euclidean Norm (default in AFNI)
+            fd_euclidean_output = os.path.join(outdir, 'Motion_enorm.1D')
             fd_euclidean_command = (f'1d_tool.py -overwrite -infile {mot[mot_idx]} -derivative '
-                                    f'-collapse_cols euclidean_norm -write Motion_enorm.1D')
-            fd_power_command = (f'1deval -overwrite -a Motion_deriv.1D[0] -b Motion_deriv.1D[1] '
-                                f'-c Motion_deriv.1D[2] -d Motion_deriv.1D[3] '
-                                f'-e Motion_deriv.1D[4] -f Motion_deriv.1D[5] '
+                                    f'-collapse_cols euclidean_norm -write {fd_euclidean_output}')
+            # Computes Framewise Displacement (as defined by Power)
+            fd_power_output = os.path.join(outdir, 'Motion_FD.1D')
+            fd_power_command = (f'1deval -overwrite -a {deriv_mopars_output}[0] '
+                                f'-b {deriv_mopars_output}[1] -c {deriv_mopars_output}[2] '
+                                f'-d {deriv_mopars_output}[3] -e {deriv_mopars_output}[4] '
+                                f'-f {deriv_mopars_output}[5] '
                                 f'-expr "abs(a)+abs(b)+abs(c)+abs(d)+abs(e)+abs(f)" '
-                                f'> Motion_FD.1D')
-            rms_motion_command = (f'1deval -overwrite -a Motion_deriv.1D[0] -b Motion_deriv.1D[1] '
-                                  f'-c Motion_deriv.1D[2] -d Motion_deriv.1D[3] '
-                                  f'-e Motion_deriv.1D[4] -f Motion_deriv.1D[5] '
+                                f'> {fd_power_output}')
+            # Compute RMS of motion derivative parameters
+            rms_motion_output = os.path.join(outdir, Motion_RMS.1D)
+            rms_motion_command = (f'1deval -overwrite -a {deriv_mopars_output}[0] '
+                                  f'-b {deriv_mopars_output}[1] -c {deriv_mopars_output}[2] '
+                                  f'-d {deriv_mopars_output}[3] -e {deriv_mopars_output}[4] '
+                                  f'-f {deriv_mopars_output}[5] '
                                   f'-expr "sqrt( (a*a + b*b +c*c + d*d + e*e + f*f)/6 )" > '
-                                  f'Motion_RMS.1D')
+                                  f'{rms_motion_output}')
     print('Finished!')
 
 
