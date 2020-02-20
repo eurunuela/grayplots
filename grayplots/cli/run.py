@@ -27,14 +27,14 @@ def _get_parser():
                           metavar='MOT',
                           type=str,
                           help='Motion parameters of each input data (default = None).',
-                          default='None')
+                          default=None)
     optional.add_argument('-dir',
                           dest='outdir',
                           nargs=1,
                           metavar='DIR',
                           type=str,
                           help='Output directory name (default = results).',
-                          default='results')
+                          default='grayplots_temp')
     optional.add_argument('-polort',
                           dest='polort',
                           nargs=1,
