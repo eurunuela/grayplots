@@ -7,20 +7,27 @@ def _get_parser():
     parser = argparse.ArgumentParser()
     optional = parser._action_groups.pop()
     required = parser.add_argument_group('required arguments')
-    required.add_argument('-d',
+    optional.add_argument('-d',
                           dest='data',
                           nargs='+',
                           metavar='FILE',
                           type=str,
-                          help=('Input data.'),
-                          required=True)
-    required.add_argument('-mask',
+                          help=('Input data (default = None).'),
+                          default=None)
+    optional.add_argument('-mask',
                           dest='mask',
                           nargs='+',
                           metavar='FILE',
                           type=str,
-                          help=('Mask of input data.'),
-                          required=True)
+                          help=('Mask of input data (default = None).'),
+                          default=None)
+    optional.add_argument('-fig',
+                          dest='figs',
+                          nargs='+',
+                          metavar='FILE',
+                          type=str,
+                          help=('Figures of already generated grayplots (default = None).'),
+                          default=None)
     optional.add_argument('-mot',
                           dest='mot',
                           nargs='+',
