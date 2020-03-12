@@ -4,17 +4,18 @@ from grayplots.cli.run import _get_parser
 from grayplots.reporting.generate_report import generate_report, generate_image
 
 
-def grayplots(data, mask, mot, outdir, polort, fwhm, range_grayplot, percent, ordering, dim):
+def grayplots(data, mask, figs, mot, outdir, polort, fwhm, range_grayplot, percent, ordering, dim):
 
     # Get amount of datasets and motion parameters
-    n_datasets = len(data)
+    if data is not None:
+        n_datasets = len(data)
 
     # Generate output directory if it does not exist
     if not os.path.isdir(outdir):
         os.mkdir(outdir)
 
     # We assume the same mask works for the different datasets
-    if type(mask) is list:
+    if (mask is not None) and (type(mask) is list):
         mask = mask[0]
 
     # Motion parameters-related calculations
@@ -93,27 +94,32 @@ def grayplots(data, mask, mot, outdir, polort, fwhm, range_grayplot, percent, or
 
     # Draws the grayplots with AFNI's 3dGrayplot for each dataset
     images_html = ''
-    for data_idx in range(n_datasets):
-        grayplot_output = os.path.join(outdir, f'grayplot_{data_idx}.png')
-        grayplot_command = (f'3dGrayplot -input {data[data_idx]} -overwrite -mask {mask} '
-                            f'-prefix {grayplot_output} -range {range_grayplot} '
-                            f'-{ordering} -dimen {dim[0]} {dim[1]}')
-        if polort != 0:
-            grayplot_command = f'{grayplot_command} -polort {polort}'
-        if fwhm != 0.0:
-            grayplot_command = f'{grayplot_command} -fwhm {fwhm}'
-        if percent:
-            grayplot_command = f'{grayplot_command} -percent'
+    if data is not None:
+        for data_idx in range(n_datasets):
+            grayplot_output = os.path.join(outdir, f'grayplot_{data_idx}.png')
+            grayplot_command = (f'3dGrayplot -input {data[data_idx]} -overwrite -mask {mask} '
+                                f'-prefix {grayplot_output} -range {range_grayplot} '
+                                f'-{ordering} -dimen {dim[0]} {dim[1]}')
+            if polort != 0:
+                grayplot_command = f'{grayplot_command} -polort {polort}'
+            if fwhm != 0.0:
+                grayplot_command = f'{grayplot_command} -fwhm {fwhm}'
+            if percent:
+                grayplot_command = f'{grayplot_command} -percent'
 
-        print(f'Drawing grayplot for {data[data_idx]}...')
-        os.system(grayplot_command)
-        while not os.path.isfile(grayplot_output):
-            time.sleep(0.5)
-        print(f'Grayplot of {data[data_idx]} saved in {grayplot_output}')
+            print(f'Drawing grayplot for {data[data_idx]}...')
+            os.system(grayplot_command)
+            while not os.path.isfile(grayplot_output):
+                time.sleep(0.5)
+            print(f'Grayplot of {data[data_idx]} saved in {grayplot_output}')
 
-        # TO-DO: save grayplots and FD plots into html report
-        title = f'Grayplot of {data[data_idx]}'
-        images_html += generate_image(f'grayplot_{data_idx}.png', dim, title)
+            # TO-DO: save grayplots and FD plots into html report
+            title = f'Grayplot of {data[data_idx]}'
+            images_html += generate_image(f'grayplot_{data_idx}.png', dim, title)
+
+    if figs is not None:
+        for fig_path in figs:
+            images_html += generate_image(fig_path, dim, '')
 
     generate_report(images_html, outdir)
 
